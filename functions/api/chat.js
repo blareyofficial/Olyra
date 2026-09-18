@@ -1,0 +1,7 @@
+const localRooms = new Map();
+const roomPattern = /^[A-Za-z0-9_-]{8,64}$/;
+const json = (body, status = 200) => Response.json(body, { status, headers: { 'cache-control': 'no-store' } });
+async function getRoom(context, id) { const kv = context.env?.CHAT_ROOMS; if (kv) return (await kv.get(`room:${id}`, 'json')) || { messages: [] }; return localRooms.get(id) || { messages: [] }; }
+async function saveRoom(context, id, room) { const kv = context.env?.CHAT_ROOMS; if (kv) return kv.put(`room:${id}`, JSON.stringify(room), { expirationTtl: 86400 }); localRooms.set(id, room); }
+export async function onRequestGet(context) { const url = new URL(context.request.url); const id = url.searchParams.get('room'); const since = Number(url.searchParams.get('since') || 0); if (!id || !roomPattern.test(id)) return json({ error: 'Invalid room.' }, 400); const room = await getRoom(context, id); return json(room.messages.filter((message) => message.id > since)); }
+export async function onRequestPost(context) { try { const body = await context.request.json(); if (!roomPattern.test(body.room) || typeof body.iv !== 'string' || typeof body.data !== 'string' || body.iv.length > 64 || body.data.length > 12000) return json({ error: 'Invalid message.' }, 400); const room = await getRoom(context, body.room); room.messages.push({ id: Date.now() + Math.random(), iv: body.iv, data: body.data }); room.messages = room.messages.slice(-200); await saveRoom(context, body.room, room); return json({ ok: true }); } catch { return json({ error: 'Invalid request.' }, 400); } }
