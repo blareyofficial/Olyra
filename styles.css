@@ -1,3 +1,8 @@
+.store {
+  background: var(--cream);
+  padding: 120px max(32px, calc((100vw - 1176px)/2)) 130px;
+}
+
 /* Dark Olyra palette */
 :root{--ink:#f7f2ff !important;--paper:#080812 !important;--cream:#111020 !important;--coral:#ff4f9a !important;--mint:#72d8ff !important;--muted:#aaa5c2 !important;--line:#302a4a !important}
 .search{background:#171c3a!important}.url{background:#6e2c92!important}.chat{background:#192d61!important}
