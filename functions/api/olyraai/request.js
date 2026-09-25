@@ -5,6 +5,10 @@ const decodeQuery = (raw) => {
 
 export async function onRequestGet(context) {
   const url = new URL(context.request.url);
+  if (url.pathname === '/api/olyraai/request') {
+    url.pathname += '/';
+    return Response.redirect(url.toString(), 308);
+  }
   const rawQuery = url.search.startsWith('?') ? url.search.slice(1) : '';
 
   if (!rawQuery) return new Response('Usage: /api/olyraai/request?your%20query%20here', { status: 400, headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'no-store' } });
