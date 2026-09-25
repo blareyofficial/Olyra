@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="OlyraAI — useful AI, made accessible.">
+  <title>OlyraAI</title>
+  <link rel="icon" href="https://htmlhoster.com/p/Z1XHW2WY/OlyraSearchLogo.svg">
+  <link rel="stylesheet" href="/styles.css">
+  <script src="https://js.puter.com/v2/"></script>
+  <style>
+    .ai-page{max-width:1100px;margin:0 auto;padding:70px 24px 110px}
+    .ai-shell{margin-top:42px;border:1px solid rgba(255,255,255,.12);border-radius:24px;overflow:hidden;background:rgba(255,255,255,.035);box-shadow:0 25px 80px rgba(0,0,0,.22)}
+    .ai-top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 20px;border-bottom:1px solid rgba(255,255,255,.1)}
+    .ai-status{font-size:12px;opacity:.65}
+    .ai-messages{height:min(62vh,650px);min-height:390px;overflow:auto;padding:24px}
+    .ai-message{max-width:78%;margin:0 0 18px;padding:15px 17px;border-radius:18px;line-height:1.55;white-space:pre-wrap}
+    .ai-message.user{margin-left:auto;background:var(--ink,#111);border:1px solid rgba(255,255,255,.12)}
+    .ai-message.assistant{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08)}
+    .ai-label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.12em;opacity:.5;margin-bottom:7px}
+    .ai-form{display:flex;gap:10px;padding:16px;border-top:1px solid rgba(255,255,255,.1)}
+    .ai-input{flex:1;resize:none;min-height:52px;max-height:150px;border:1px solid rgba(255,255,255,.14);border-radius:15px;background:rgba(0,0,0,.22);color:inherit;padding:15px;font:inherit;outline:none}
+    .ai-send{border:0;border-radius:15px;padding:0 20px;font:inherit;font-weight:700;cursor:pointer}
+    .ai-note{padding:0 20px 18px;font-size:12px;opacity:.5}
+    @media(max-width:650px){.ai-page{padding-top:40px}.ai-message{max-width:90%}.ai-form{align-items:stretch}.ai-send{padding:0 15px}}
+  </style>
+</head>
+<body>
+<header class="header">
+  <a class="brand" href="/"><img src="https://htmlhoster.com/p/Z1XHW2WY/OlyraSearchLogo.svg" alt=""> olyra</a>
+  <a class="outline" href="/tools/">All tools ↗</a>
+</header>
+<main class="ai-page">
+  <p class="eyebrow"><b></b> OlyraAI</p>
+  <h1>Ask anything.<br><em>Keep it useful.</em></h1>
+  <p class="lede">An AI assistant from Olyra, built to be simple, accessible, and free to use without an Olyra subscription.</p>
+
+  <section class="ai-shell" aria-label="OlyraAI chat">
+    <div class="ai-top">
+      <strong>OlyraAI</strong>
+      <span class="ai-status" id="status">Ready</span>
+    </div>
+    <div class="ai-messages" id="messages" aria-live="polite">
+      <article class="ai-message assistant"><span class="ai-label">OlyraAI</span>Hey! I'm OlyraAI. What can I help you with?</article>
+    </div>
+    <form class="ai-form" id="form">
+      <textarea class="ai-input" id="input" rows="1" placeholder="Message OlyraAI..." aria-label="Message OlyraAI"></textarea>
+      <button class="ai-send" id="send" type="submit">Send ↗</button>
+    </form>
+    <p class="ai-note">Powered by Puter.js. Model availability and usage limits are provided by Puter.</p>
+  </section>
+</main>
+<script>
+const messagesEl = document.getElementById('messages');
+const input = document.getElementById('input');
+const form = document.getElementById('form');
+const send = document.getElementById('send');
+const status = document.getElementById('status');
+const history = [];
+
+function addMessage(role, text) {
+  const article = document.createElement('article');
+  article.className = 'ai-message ' + role;
+  const label = document.createElement('span');
+  label.className = 'ai-label';
+  label.textContent = role === 'user' ? 'You' : 'OlyraAI';
+  article.append(label, document.createTextNode(text));
+  messagesEl.appendChild(article);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+  return article;
+}
+
+input.addEventListener('input', () => {
+  input.style.height = 'auto';
+  input.style.height = Math.min(input.scrollHeight, 150) + 'px';
+});
+
+form.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const prompt = input.value.trim();
+  if (!prompt || send.disabled) return;
+
+  input.value = '';
+  input.style.height = 'auto';
+  addMessage('user', prompt);
+  history.push({ role: 'user', content: prompt });
+
+  send.disabled = true;
+  status.textContent = 'Thinking…';
+
+  const responseArticle = addMessage('assistant', '');
+  const label = responseArticle.querySelector('.ai-label');
+  const textNode = document.createTextNode('');
+  responseArticle.appendChild(textNode);
+
+  try {
+    const response = await puter.ai.chat(history, {
+      model: 'gpt-5.6-luna',
+      stream: true
+    });
+
+    let answer = '';
+    for await (const part of response) {
+      if (part && part.text) {
+        answer += part.text;
+        textNode.textContent = answer;
+        messagesEl.scrollTop = messagesEl.scrollHeight;
+      }
+    }
+    history.push({ role: 'assistant', content: answer });
+    status.textContent = 'Ready';
+  } catch (error) {
+    responseArticle.remove();
+    status.textContent = 'Error';
+    addMessage('assistant', 'Sorry — OlyraAI could not reach the AI service right now. Please try again.');
+    console.error(error);
+  } finally {
+    send.disabled = false;
+    input.focus();
+  }
+});
+
+input.addEventListener('keydown', (event) => {
+  if (event.key === 'Enter' && !event.shiftKey) {
+    event.preventDefault();
+    form.requestSubmit();
+  }
+});
+</script>
+</body>
+</html>
