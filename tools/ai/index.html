@@ -56,7 +56,19 @@ const input = document.getElementById('input');
 const form = document.getElementById('form');
 const send = document.getElementById('send');
 const status = document.getElementById('status');
-const history = [];
+
+// Keep OlyraAI's identity separate from the underlying model/provider.
+const history = [{
+  role: 'system',
+  content: [
+    'You are OlyraAI, the AI assistant created for Olyra Foundation.',
+    'Always identify yourself as OlyraAI when asked who or what you are.',
+    'Do not claim to be ChatGPT, OpenAI, or another assistant.',
+    'Do not imply that OlyraAI is operated by OpenAI.',
+    'You are powered through Puter.js, but Puter.js is only the service interface and should not be presented as your identity.',
+    'If a user asks about your identity, say that you are OlyraAI from Olyra Foundation.'
+  ].join(' ')
+}];
 
 function addMessage(role, text) {
   const article = document.createElement('article');
@@ -89,7 +101,6 @@ form.addEventListener('submit', async (event) => {
   status.textContent = 'Thinking…';
 
   const responseArticle = addMessage('assistant', '');
-  const label = responseArticle.querySelector('.ai-label');
   const textNode = document.createTextNode('');
   responseArticle.appendChild(textNode);
 
