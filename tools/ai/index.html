@@ -62,11 +62,11 @@ const history=[{role:'system',content:'You are OlyraAI, the AI assistant created
 
 function renderMarkdown(container,text){container.innerHTML=marked.parse(text||'',{breaks:true,gfm:true});}
 function addMessage(role,text){
-  const article=document.createElement('article');article.className='ai-message '+role;
+  const article=document.createElement('article');article.className='ai-message '+role;if(role==='user'){article.style.setProperty('background','#111','important');article.style.setProperty('color','#fff','important');}
   const label=document.createElement('span');label.className='ai-label';label.textContent=role==='user'?'You':'OlyraAI';
   const body=document.createElement('div');body.className=role==='assistant'?'ai-markdown':'';
   if(role==='assistant') renderMarkdown(body,text); else body.textContent=text;
-  article.append(label,body);messagesEl.appendChild(article);messagesEl.scrollTop=messagesEl.scrollHeight;return {article,body};
+  if(role==='user'){label.style.setProperty('color','#fff','important');body.style.setProperty('color','#fff','important');}article.append(label,body);messagesEl.appendChild(article);messagesEl.scrollTop=messagesEl.scrollHeight;return {article,body};
 }
 input.addEventListener('input',()=>{input.style.height='auto';input.style.height=Math.min(input.scrollHeight,150)+'px';});
 form.addEventListener('submit',async event=>{
