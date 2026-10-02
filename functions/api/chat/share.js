@@ -1,5 +1,6 @@
 const ALPHABET = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-const randomSuffix = (length = 6) => {
+const randomSuffix = () => {
+  const length = 4 + crypto.getRandomValues(new Uint8Array(1))[0] % 3;
   const bytes = crypto.getRandomValues(new Uint8Array(length));
   return Array.from(bytes, byte => ALPHABET[byte % ALPHABET.length]).join('');
 };
@@ -15,7 +16,7 @@ export async function onRequestPost(context) {
     if (!target.searchParams.get('room') || !target.hash.slice(1)) return json({ error: 'The room URL is missing its encryption key.' }, 400);
 
     for (let attempt = 0; attempt < 5; attempt++) {
-      const shorturl = `olyralink${randomSuffix(6)}`;
+      const shorturl = `olyralink${randomSuffix()}`;
       const response = await fetch('https://is.gd/create.php?format=json&url=' + encodeURIComponent(target.toString()) + '&shorturl=' + encodeURIComponent(shorturl));
       if (!response.ok) continue;
       const result = await response.json().catch(() => ({}));
