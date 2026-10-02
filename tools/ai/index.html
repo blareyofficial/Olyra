@@ -7,7 +7,6 @@
   <title>OlyraAI</title>
   <link rel="icon" href="https://htmlhoster.com/p/Z1XHW2WY/OlyraSearchLogo.svg">
   <link rel="stylesheet" href="/styles.css">
-  <script src="https://js.puter.com/v2/"></script>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
     .ai-page{max-width:1100px;margin:0 auto;padding:70px 24px 110px}
@@ -53,20 +52,20 @@
       <textarea class="ai-input" id="input" rows="1" placeholder="Message OlyraAI..." aria-label="Message OlyraAI"></textarea>
       <button class="ai-send" id="send" type="submit">Send ↗</button>
     </form>
-    <p class="ai-note">Powered by Puter.js. Model availability and usage limits are provided by Puter.</p>
+    <p class="ai-note">Powered by Groq. Your API key stays server-side in Cloudflare Pages.</p>
   </section>
 </main>
 <script>
 const messagesEl=document.getElementById('messages'),input=document.getElementById('input'),form=document.getElementById('form'),send=document.getElementById('send'),status=document.getElementById('status');
-const history=[{role:'system',content:'You are OlyraAI, the AI assistant created for Olyra Foundation. Always identify yourself as OlyraAI when asked who or what you are. Do not claim to be ChatGPT, OpenAI, or another assistant. Do not imply that OlyraAI is operated by OpenAI. You are powered through Puter.js, but Puter.js is only the service interface and should not be presented as your identity. If a user asks about your identity, say that you are OlyraAI from Olyra Foundation.'}];
-
+const history=[{role:'system',content:'You are OlyraAI, the AI assistant created for Olyra Foundation. Always identify yourself as OlyraAI when asked who or what you are. Do not claim to be ChatGPT, OpenAI, or another assistant. Do not imply that OlyraAI is operated by OpenAI.'}];
 function renderMarkdown(container,text){container.innerHTML=marked.parse(text||'',{breaks:true,gfm:true});}
 function addMessage(role,text){
-  const article=document.createElement('article');article.className='ai-message '+role;if(role==='user'){article.style.setProperty('background','#111','important');article.style.setProperty('color','#fff','important');}
+  const article=document.createElement('article');article.className='ai-message '+role;
+  if(role==='user'){article.style.setProperty('background','#111','important');article.style.setProperty('color','#fff','important');}
   const label=document.createElement('span');label.className='ai-label';label.textContent=role==='user'?'You':'OlyraAI';
   const body=document.createElement('div');body.className=role==='assistant'?'ai-markdown':'';
   if(role==='assistant') renderMarkdown(body,text); else body.textContent=text;
-  if(role==='user'){label.style.setProperty('color','#fff','important');body.style.setProperty('color','#fff','important');}article.append(label,body);messagesEl.appendChild(article);messagesEl.scrollTop=messagesEl.scrollHeight;return {article,body};
+  article.append(label,body);messagesEl.appendChild(article);messagesEl.scrollTop=messagesEl.scrollHeight;return {article,body};
 }
 input.addEventListener('input',()=>{input.style.height='auto';input.style.height=Math.min(input.scrollHeight,150)+'px';});
 form.addEventListener('submit',async event=>{
@@ -74,10 +73,11 @@ form.addEventListener('submit',async event=>{
   input.value='';input.style.height='auto';addMessage('user',prompt);history.push({role:'user',content:prompt});
   send.disabled=true;status.textContent='Thinking…';const response=addMessage('assistant','');
   try{
-    const stream=await puter.ai.chat(history,{model:'gpt-5.6-luna',stream:true});let answer='';
-    for await(const part of stream){if(part&&part.text){answer+=part.text;renderMarkdown(response.body,answer);messagesEl.scrollTop=messagesEl.scrollHeight;}}
-    history.push({role:'assistant',content:answer});status.textContent='Ready';
-  }catch(error){response.article.remove();status.textContent='Error';addMessage('assistant','Sorry — OlyraAI could not reach the AI service right now. Please try again.');console.error(error);}
+    const result=await fetch('/api/olyraai/request',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({messages:history})});
+    const data=await result.json().catch(()=>({}));
+    if(!result.ok) throw new Error(data.error||'OlyraAI could not reach Groq.');
+    const answer=String(data.content||'No response.');renderMarkdown(response.body,answer);history.push({role:'assistant',content:answer});status.textContent='Ready';
+  }catch(error){response.article.remove();status.textContent='Error';addMessage('assistant','Sorry — '+(error.message||'OlyraAI could not reach the AI service right now.')+' Please try again.');}
   finally{send.disabled=false;input.focus();}
 });
 input.addEventListener('keydown',event=>{if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();form.requestSubmit();}});
