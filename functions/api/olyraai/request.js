@@ -1,24 +1,45 @@
-const decodeQuery = (raw) => {
-  try { return decodeURIComponent(raw.replace(/\+/g, '%20')); }
-  catch { return null; }
-};
+const SYSTEM_PROMPT = 'You are OlyraAI, the AI assistant created for Olyra Foundation. Always identify yourself as OlyraAI when asked who or what you are. Do not claim to be ChatGPT, OpenAI, or another assistant. Do not imply that OlyraAI is operated by OpenAI.';
+const json = (body, status = 200) => Response.json(body, { status, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' } });
+
+function cleanMessages(messages) {
+  if (!Array.isArray(messages) || messages.length === 0 || messages.length > 40) return null;
+  const allowed = new Set(['system', 'user', 'assistant']);
+  const cleaned = messages.map(message => ({
+    role: typeof message?.role === 'string' && allowed.has(message.role) ? message.role : null,
+    content: typeof message?.content === 'string' ? message.content.slice(0, 12000) : null
+  }));
+  if (cleaned.some(message => !message.role || !message.content)) return null;
+  return [{ role: 'system', content: SYSTEM_PROMPT }, ...cleaned.filter(message => message.role !== 'system')];
+}
+
+async function complete(context, messages) {
+  const apiKey = context.env?.OLYRAAI_API_KEY;
+  if (!apiKey) return json({ error: 'OlyraAI is not configured on this deployment.' }, 503);
+  const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ model: 'openai/gpt-oss-120b', messages, temperature: 0.7, max_completion_tokens: 4096 })
+  });
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok) return json({ error: result?.error?.message || 'Groq returned an error.' }, response.status >= 500 ? 502 : response.status);
+  return json({ content: result?.choices?.[0]?.message?.content || 'No response was returned.' });
+}
+
+export async function onRequestPost(context) {
+  try {
+    const body = await context.request.json();
+    const messages = cleanMessages(body?.messages);
+    if (!messages) return json({ error: 'Invalid message history.' }, 400);
+    return complete(context, messages);
+  } catch {
+    return json({ error: 'Invalid request.' }, 400);
+  }
+}
 
 export async function onRequestGet(context) {
   const url = new URL(context.request.url);
-  if (url.pathname === '/api/olyraai/request') {
-    url.pathname += '/';
-    return Response.redirect(url.toString(), 308);
-  }
-  const rawQuery = url.search.startsWith('?') ? url.search.slice(1) : '';
-
-  if (!rawQuery) return new Response('Usage: /api/olyraai/request?your%20query%20here', { status: 400, headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'no-store' } });
-
-  const query = decodeQuery(rawQuery);
-  if (query === null) return new Response('Invalid URL encoding.', { status: 400, headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'no-store' } });
-  if (query.length > 4000) return new Response('Query is too long (maximum 4000 characters).', { status: 414, headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'no-store' } });
-
-  const safeQuery = JSON.stringify(query).replace(/</g, '\\u003c');
-  const page = '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>OlyraAI API</title><script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script><style>body{margin:0;padding:32px;font:16px system-ui,sans-serif;line-height:1.6;background:#08080c;color:#fff}main{max-width:900px;margin:auto;overflow-wrap:anywhere}.label{opacity:.55;font-size:12px;text-transform:uppercase;letter-spacing:.12em;margin-bottom:12px}.markdown pre{padding:12px;border-radius:10px;overflow:auto;background:rgba(0,0,0,.35)}.markdown :not(pre)>code{padding:2px 5px;border-radius:5px;background:rgba(127,127,127,.18)}.markdown blockquote{margin:10px 0;padding-left:12px;border-left:3px solid rgba(255,255,255,.25)}.markdown table{border-collapse:collapse;width:100%}.markdown th,.markdown td{border:1px solid rgba(255,255,255,.15);padding:6px 9px}.markdown a{color:inherit}</style></head><body><main><div class="label">OlyraAI</div><div id="output" class="markdown">Thinking…</div></main><script src="https://js.puter.com/v2/"></script><script>const output=document.getElementById("output");const query=' + safeQuery + ';const history=[{role:"system",content:"You are OlyraAI, the AI assistant created for Olyra Foundation. Always identify yourself as OlyraAI when asked who or what you are. Do not claim to be ChatGPT, OpenAI, or another assistant. Do not imply that OlyraAI is operated by OpenAI. You are powered through Puter.js, but Puter.js is only the service interface and should not be presented as your identity."},{role:"user",content:query}];(async()=>{try{const response=await puter.ai.chat(history,{model:"gpt-5.6-luna"});const text=response?.message?.content??response?.text??response??"No response.";output.innerHTML=marked.parse(String(text),{breaks:true,gfm:true})}catch(error){output.textContent="OlyraAI error: "+(error?.message||String(error))}})();</script></body></html>';
-
-  return new Response(page, { status: 200, headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store', 'access-control-allow-origin': '*' } });
+  const query = url.searchParams.get('q') || url.search.slice(1);
+  if (!query) return json({ error: 'Usage: /api/olyraai/request?q=your%20query' }, 400);
+  if (query.length > 12000) return json({ error: 'Query is too long.' }, 414);
+  return complete(context, [{ role: 'system', content: SYSTEM_PROMPT }, { role: 'user', content: query }]);
 }
