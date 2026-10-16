@@ -11,8 +11,6 @@ The main Olyra site currently includes:
 - **Olyra Search** — web search.
 - **Olyra URL** — URL-related tools.
 - **Olyra Chat** — an encrypted chat experience.
-- **OlyraAI** — an AI assistant powered through Puter.js.
-- **OlyraAI API-style endpoint** — send a query through `/api/olyraai/request` and receive an OlyraAI response page.
 
 ## Repository structure
 
@@ -21,55 +19,24 @@ The main Olyra site currently includes:
 ├── founders/
 ├── functions/
 │   └── api/
-│       ├── chat.js
-│       └── olyraai/
-│           └── request.js
+│       └── chat.js
 ├── tools/
 │   ├── chat/
 │   ├── search/
-│   ├── url/
-│   └── ai/
+│   └── url/
 ├── index.html
 ├── styles.css
 ├── OlyraLogo.svg
 └── LICENSE
 ```
 
-## OlyraAI
-
-OlyraAI is the AI assistant provided by Olyra.
-
-The current web interface uses:
-
-- [Puter.js](https://js.puter.com/v2/)
-- Markdown rendering with [marked](https://marked.js.org/)
-- Streaming AI responses
-- A browser-side conversation history
-- A dedicated OlyraAI identity prompt
-
-OlyraAI is currently an interface built around Puter rather than a separately hosted Olyra language model.
-
-### API-style request
-
-You can send a URL-encoded query to:
-
-```
-/api/olyraai/request?your%20query%20here
-```
-
-For example:
-
-```
-/api/olyraai/request?What%20is%20Olyra
-```
-
-The endpoint returns a small OlyraAI page which runs the Puter request and renders the response as Markdown.
-
 ## Cloudflare Pages
 
 The repository is designed to work with Cloudflare Pages.
 
 The `functions/` directory contains Cloudflare Pages Functions. When the repository is connected to Cloudflare Pages, pushes to the configured production branch can trigger automatic deployments.
+
+Olyra Chat's KLIPY GIF search requires a KLIPY app key configured as the `KLIPY_API_KEY` environment variable in the Cloudflare Pages project. Get an app key from [KLIPY](https://partner.klipy.com/api-keys). Custom file attachments are encrypted in the browser before being stored in the existing `CHAT_ROOMS` KV namespace, and are limited to 10 MB; stored files expire after 24 hours.
 
 ## Development
 
