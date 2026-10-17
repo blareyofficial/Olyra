@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A friendly, helpful, and calm AI assistant from Olyra.">
+  <title>Olyra AI</title>
+  <link rel="icon" href="/OlyraLogo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="header">
+    <a class="brand" href="/"><img src="/OlyraLogo.svg" alt=""> Olyra</a>
+    <a class="outline" href="/tools/">All tools ↗</a>
+  </header>
+  <main class="tool-page ai-page">
+    <section class="ai-intro">
+      <p class="eyebrow"><b></b> Olyra AI</p>
+      <h1>A little help,<br><em>when you need it.</em></h1>
+      <p class="lede">A friendly, thoughtful assistant for questions, ideas, and getting unstuck. Take your time — we can work through it together.</p>
+      <div class="ai-prompts" aria-label="Try asking">
+        <button type="button" data-prompt="Help me make a simple plan for today.">Help me make a plan</button>
+        <button type="button" data-prompt="Explain a tricky idea in simple terms.">Explain an idea</button>
+        <button type="button" data-prompt="Help me brainstorm a few fresh ideas.">Brainstorm with me</button>
+      </div>
+    </section>
+    <section class="ai-panel" aria-label="Conversation with Olyra AI">
+      <div class="ai-panel-head">
+        <span>Conversation</span>
+        <button id="new-chat" class="ai-reset" type="button">New conversation</button>
+      </div>
+      <div id="ai-messages" class="ai-messages" aria-live="polite" aria-relevant="additions text">
+        <p class="ai-empty">Your conversation will appear here.</p>
+      </div>
+      <form id="ai-form" class="ai-form">
+        <label class="visually-hidden" for="ai-input">Message Olyra AI</label>
+        <textarea id="ai-input" maxlength="2000" rows="2" placeholder="What would you like help with?" required></textarea>
+        <button id="ai-send" type="submit">Send ↗</button>
+      </form>
+      <p id="ai-status" class="ai-status" role="status"></p>
+      <p class="ai-privacy">Messages are sent to an AI service to create replies. Avoid sharing sensitive personal information.</p>
+    </section>
+  </main>
+  <script>
+    const requestUrl = "/api/olyra/request/";
+    const messages = [];
+    const form = document.getElementById("ai-form");
+    const input = document.getElementById("ai-input");
+    const sendButton = document.getElementById("ai-send");
+    const resetButton = document.getElementById("new-chat");
+    const transcript = document.getElementById("ai-messages");
+    const status = document.getElementById("ai-status");
+
+    function addMessage(role, content) {
+      const item = document.createElement("article");
+      item.className = `ai-message ${role}`;
+      const label = document.createElement("span");
+      label.className = "ai-message-label";
+      label.textContent = role === "user" ? "You" : "Olyra AI";
+      const text = document.createElement("p");
+      text.textContent = content;
+      item.append(label, text);
+      transcript.append(item);
+      transcript.scrollTop = transcript.scrollHeight;
+    }
+
+    function clearTranscript() {
+      transcript.replaceChildren();
+      const empty = document.createElement("p");
+      empty.className = "ai-empty";
+      empty.textContent = "Your conversation will appear here.";
+      transcript.append(empty);
+    }
+
+    document.querySelectorAll("[data-prompt]").forEach((button) => {
+      button.addEventListener("click", () => {
+        input.value = button.dataset.prompt;
+        input.focus();
+      });
+    });
+
+    resetButton.addEventListener("click", () => {
+      messages.length = 0;
+      clearTranscript();
+      status.textContent = "";
+      input.value = "";
+      input.focus();
+    });
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const content = input.value.trim();
+      if (!content || sendButton.disabled) return;
+
+      const userMessage = { role: "user", content };
+      const recentMessages = [...messages, userMessage].slice(-20);
+      messages.push(userMessage);
+      while (messages.length > 20) messages.shift();
+      transcript.querySelector(".ai-empty")?.remove();
+      addMessage("user", content);
+      input.value = "";
+      status.textContent = "Olyra AI is thinking…";
+      sendButton.disabled = true;
+      resetButton.disabled = true;
+
+      try {
+        const response = await fetch(requestUrl, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ messages: recentMessages })
+        });
+        let result;
+        try {
+          result = await response.json();
+        } catch {
+          throw new Error("Olyra AI could not reply. Please try again shortly.");
+        }
+        if (!response.ok) throw new Error(result.error || "Olyra AI could not reply. Please try again.");
+        if (typeof result.reply !== "string" || !result.reply.trim()) {
+          throw new Error("Olyra AI returned an empty reply. Please try again.");
+        }
+        messages.push({ role: "assistant", content: result.reply });
+        while (messages.length > 20) messages.shift();
+        addMessage("assistant", result.reply);
+        status.textContent = "";
+      } catch (error) {
+        status.textContent = error instanceof Error ? error.message : "Olyra AI could not reply. Please try again.";
+      } finally {
+        sendButton.disabled = false;
+        resetButton.disabled = false;
+        input.focus();
+      }
+    });
+  </script>
+</body>
+</html>

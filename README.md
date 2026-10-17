@@ -11,6 +11,7 @@ The main Olyra site currently includes:
 - **Olyra Search** — web search.
 - **Olyra URL** — URL-related tools.
 - **Olyra Chat** — an encrypted chat experience.
+- **Olyra AI** — a friendly assistant for questions and ideas.
 
 ## Repository structure
 
@@ -21,6 +22,7 @@ The main Olyra site currently includes:
 │   └── api/
 │       └── chat.js
 ├── tools/
+│   ├── ai/
 │   ├── chat/
 │   ├── search/
 │   └── url/
@@ -29,6 +31,8 @@ The main Olyra site currently includes:
 ├── OlyraLogo.svg
 └── LICENSE
 ```
+
+Olyra AI sends conversation messages to an external AI service to generate replies. Conversations are kept in the current browser tab and are not saved to an Olyra account.
 
 ## Cloudflare Pages
 
