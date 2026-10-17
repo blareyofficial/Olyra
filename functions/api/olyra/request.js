@@ -1,5 +1,5 @@
-const gatewayUrl = "https://ai-gateway.kilo.ai/api/v1/chat/completions";
-const model = "nvidia/nemotron-3.5-lightning:free";
+const groqUrl = "https://api.groq.com/openai/v1/chat/completions";
+const model = "llama-3.3-70b-versatile";
 const maxMessages = 20;
 const maxMessageLength = 2000;
 const maxConversationLength = 12000;
@@ -52,10 +52,19 @@ export async function onRequest(context) {
     messages.push({ role: message.role, content: message.content });
   }
 
+  const apiKey = context.env?.AI_API_KEY;
+  if (typeof apiKey !== "string" || !apiKey.trim()) {
+    console.error("Olyra AI is missing the AI_API_KEY secret.");
+    return json({ error: "Olyra AI is not configured right now." }, 503);
+  }
+
   try {
-    const response = await fetch(gatewayUrl, {
+    const response = await fetch(groqUrl, {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: {
+        "content-type": "application/json",
+        authorization: `Bearer ${apiKey}`
+      },
       body: JSON.stringify({
         model,
         messages: [
