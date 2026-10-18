@@ -290,6 +290,7 @@
       gameState.x += dx; gameState.y += dy;
       gameState.moves++;
       if (gameState.moves % 4 === 0) {
+        const directions = [[0, -1, 0, 2], [1, 0, 1, 3], [0, 1, 2, 0], [-1, 0, 3, 1]];
         const [ex, ey] = gameState.enemy;
         const exits = directions.filter((dir) => !gameState.cells[ey][ex].walls[dir[2]]);
         if (exits.length) {
