@@ -1,0 +1,61 @@
+.games-page{margin:auto;max-width:1240px;padding:72px 32px 110px}
+.games-hero{padding:55px 0 76px}
+.games-hero h1{font-size:clamp(68px,10vw,126px);letter-spacing:-.09em;line-height:.82;margin:28px 0}
+.games-hero h1 em{color:var(--coral);font-style:normal}
+.games-hero .lede{max-width:600px}
+.game-facts{display:flex;flex-wrap:wrap;gap:10px;margin-top:36px}
+.game-facts span,.game-tags span{border:1px solid var(--line);color:var(--muted);font:10px 'DM Mono',monospace;letter-spacing:.06em;padding:8px 10px}
+.game-library{border-top:1px solid var(--line);padding-top:48px}
+.game-library .section-head{align-items:end}
+.game-library h2{font-size:clamp(44px,6vw,72px);letter-spacing:-.075em;margin:12px 0}
+.game-filter-label{align-items:center;color:var(--muted);display:flex;font:10px 'DM Mono',monospace;gap:12px;text-transform:uppercase}
+.game-filter-label select,.game-controls select,.game-controls input,.game-controls button,.game-chat input{background:#111020;border:1px solid var(--line);color:var(--ink);font:12px 'DM Mono',monospace;padding:12px}
+.game-filter-label select{min-width:150px}
+.game-grid{display:grid;gap:17px;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:32px}
+.game-card{background:#111020;border:1px solid var(--line);display:flex;flex-direction:column;min-width:0}
+.game-art{align-items:center;display:flex;height:170px;justify-content:center;overflow:hidden;position:relative}
+.game-art span,.game-art b,.game-art i{font-style:normal;position:absolute}
+.game-art span{font-size:65px;left:24%;top:20%}
+.game-art b{font-size:54px;right:22%;top:40%}
+.game-art i{font-size:34px;left:55%;top:18%}
+.art-car{background:linear-gradient(135deg,#12214b,#111020 70%)}
+.art-car:after{border:1px solid #3955a9;content:"";height:180px;position:absolute;transform:rotate(-18deg);width:170%}
+.art-car span{color:#ff4f9a}.art-car b{color:#72d8ff}.art-car i{background:#ff4f9a;border-radius:8px;box-shadow:0 0 30px #ff4f9a;height:25px;left:42%;top:55%;transform:rotate(-18deg);width:56px}
+.art-stars{background:radial-gradient(circle at 50% 60%,#512e75,#111020 65%)}.art-stars span,.art-stars i{color:#ffe48a}.art-stars b{color:#ff6d73}
+.art-neon{background:linear-gradient(120deg,#102b3b,#381453)}.art-neon span{color:#72d8ff;font:bold 22px 'DM Mono';letter-spacing:.3em}.art-neon b{color:#ff4f9a}.art-neon i{color:#b184ff}
+.art-blocks{background:linear-gradient(135deg,#12364b,#15102b)}.art-blocks span{color:#72d8ff}.art-blocks b{color:#ff4f9a}.art-blocks i{color:#ffe48a}
+.art-orbit{background:radial-gradient(circle,#2b1856,#101020 70%)}.art-orbit span{color:#ffb05e;text-shadow:0 0 24px #ff9d43}.art-orbit b{color:#72d8ff}.art-orbit i{border:1px solid #b184ff;border-radius:50%;height:90px;left:35%;top:23%;width:210px}
+.art-maze{background:linear-gradient(145deg,#151c42,#121020)}.art-maze span,.art-maze b{color:#72d8ff}.art-maze i{color:#ff4f9a}
+.art-beat{background:linear-gradient(145deg,#381740,#111020)}.art-beat span,.art-beat i{color:#ff4f9a}.art-beat b{color:#ffe48a}
+.art-colony{background:linear-gradient(145deg,#143938,#111020)}.art-colony span{color:#72d8ff}.art-colony b{color:#a2edb4}.art-colony i{color:#ffe48a}
+.art-pixel{background:linear-gradient(145deg,#403074,#111020)}.art-pixel span,.art-pixel b{color:#72d8ff}.art-pixel i{color:#ff4f9a}
+.art-signal{background:linear-gradient(145deg,#142849,#111020)}.art-signal span{color:#72d8ff}.art-signal b{color:#ff4f9a}.art-signal i{color:#ffe48a}
+.art-bots{background:radial-gradient(circle,#27234d,#111020 70%)}.art-bots span{color:#ff4f9a}.art-bots b{color:#72d8ff}.art-bots i{color:#ffe48a}
+.art-space{background:radial-gradient(circle at 55% 50%,#32204e,#111020 70%)}.art-space span{color:#ffe48a;text-shadow:0 0 30px #ffe48a}.art-space b{border:1px solid #72d8ff;border-radius:50%;color:#72d8ff;height:90px;line-height:88px;text-align:center;width:180px}.art-space i{color:#ff4f9a}
+.game-card-info{display:flex;flex:1;flex-direction:column;padding:20px}
+.game-tags{display:flex;flex-wrap:wrap;gap:7px}.game-tags span{padding:6px 8px}
+.game-card h3{font-size:26px;letter-spacing:-.055em;margin:17px 0 8px}
+.game-card p{color:var(--muted);font-size:14px;line-height:1.55;margin:0 0 15px}
+.game-card-info>small{color:var(--muted);font:10px 'DM Mono',monospace;margin-top:auto;padding:10px 0 16px}
+.game-play,.game-secondary{background:var(--coral);border:0;color:#080812;cursor:pointer;font:11px 'DM Mono',monospace;padding:14px 15px;text-align:left;text-transform:uppercase}
+.game-play span{float:right}.game-play:hover,.game-secondary:hover{background:var(--mint)}
+.space-card{border-color:#69468b}
+.game-dialog{background:#0c0c18;border:1px solid #493d66;color:var(--ink);max-height:min(94vh,1000px);max-width:min(960px,calc(100vw - 24px));overflow:auto;padding:24px;width:100%}
+.game-dialog::backdrop{backdrop-filter:blur(7px);background:#05040dd9}
+.game-dialog-head{align-items:center;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;padding-bottom:15px}
+.game-dialog-head .eyebrow{margin:0}.game-dialog-head h2{font-size:clamp(30px,5vw,48px);letter-spacing:-.07em;margin:8px 0 0}
+.game-close{background:none;border:1px solid var(--line);color:var(--ink);cursor:pointer;font-size:27px;height:42px;width:42px}
+.game-description{color:var(--muted);line-height:1.5;margin:16px 0}
+.game-controls{align-items:center;display:flex;flex-wrap:wrap;gap:8px;margin:15px 0}
+.game-controls button{cursor:pointer}.game-controls button:hover{border-color:var(--coral)}
+.game-status{color:var(--mint);font:11px 'DM Mono',monospace;min-height:18px;padding:4px 0 9px}
+.game-dialog canvas{background:#090914;border:1px solid #302a4a;display:block;height:auto;max-height:60vh;max-width:100%;width:100%}
+.game-dialog-footer{align-items:center;color:var(--muted);display:flex;font:10px 'DM Mono',monospace;justify-content:space-between;padding-top:14px}
+.game-secondary{background:transparent;border:1px solid var(--line);color:var(--ink);padding:11px}
+.game-chat{border-top:1px solid var(--line);display:flex;gap:8px;margin-top:12px;padding-top:12px}
+.game-chat input:first-child{max-width:120px}.game-chat input:nth-child(2){flex:1;min-width:0}
+.colony-controls{display:flex;flex-wrap:wrap;gap:8px;width:100%}
+.colony-controls button{background:#111020;border:1px solid var(--line);color:var(--ink);cursor:pointer;font:11px 'DM Mono';padding:12px}
+.colony-controls button:hover{border-color:var(--mint)}
+@media(max-width:900px){.game-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.games-page{padding:45px 20px 75px}.games-hero{padding:30px 0 58px}.game-grid{grid-template-columns:1fr}.game-library .section-head{align-items:flex-start;display:block}.game-filter-label{margin-top:18px}.game-dialog{padding:15px}.game-dialog-footer{align-items:flex-start;gap:10px}.game-chat{flex-wrap:wrap}.game-chat input:first-child{flex:1}.game-chat input:nth-child(2){flex-basis:100%}}

@@ -12,6 +12,7 @@ The main Olyra site currently includes:
 - **Olyra URL** — URL-related tools.
 - **Olyra Chat** — an encrypted chat experience.
 - **Olyra AI** — a friendly assistant for questions and ideas.
+- **Olyra Games** — free browser games, including multiplayer driving and a server-simulated solar system.
 
 ## Repository structure
 
@@ -20,7 +21,13 @@ The main Olyra site currently includes:
 ├── founders/
 ├── functions/
 │   └── api/
-│       └── chat.js
+│       ├── chat.js
+│       └── games/
+│           └── space.js
+├── games/
+│   ├── games.css
+│   ├── games.js
+│   └── index.html
 ├── tools/
 │   ├── ai/
 │   ├── chat/
@@ -43,6 +50,8 @@ The `functions/` directory contains Cloudflare Pages Functions. When the reposit
 Olyra AI uses Groq for model responses. Add a Groq API key as a Cloudflare Pages secret named `AI_API_KEY` under **Settings → Variables and Secrets** for each environment where Olyra AI should run. Do not put the key in client-side code or commit it to the repository. If the secret is missing, Olyra AI returns a configuration error.
 
 Olyra Chat's KLIPY GIF search requires a KLIPY app key configured as the `KLIPY_API_KEY` environment variable in the Cloudflare Pages project. Get an app key from [KLIPY](https://partner.klipy.com/api-keys). Custom file attachments are encrypted in the browser before being stored in the existing `CHAT_ROOMS` KV namespace, and are limited to 10 MB; stored files expire after 24 hours.
+
+Olyra Drive uses the existing `/api/chat` encrypted room endpoint for private room messages and multiplayer car positions. Space Solution sends bounded gravity simulation requests to `/api/games/space`; the server limits request size, object count, integration steps, time step, mass, and world coordinates.
 
 ## Development
 

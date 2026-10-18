@@ -52,9 +52,9 @@ export async function onRequest(context) {
     messages.push({ role: message.role, content: message.content });
   }
 
-  const apiKey = context.env?.AI_API_KEY;
+  const apiKey = context.env?.GROQ_API_KEY;
   if (typeof apiKey !== "string" || !apiKey.trim()) {
-    console.error("Olyra AI is missing the AI_API_KEY secret.");
+    console.error("Olyra AI is missing the GROQ_API_KEY secret.");
     return json({ error: "Olyra AI is not configured right now." }, 503);
   }
 

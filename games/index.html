@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Play free browser games from Olyra: arcade, puzzles, multiplayer driving, and solar system simulations.">
+  <title>Olyra Games</title>
+  <link rel="icon" href="/OlyraLogo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/games/games.css">
+</head>
+<body>
+  <header class="header"><a class="brand" href="/"><img src="/OlyraLogo.svg" alt=""> Olyra</a><nav><a href="#game-library">Games</a><a href="/tools/">Tools</a></nav><a class="outline" href="/">Back home ↗</a></header>
+  <main class="games-page">
+    <section class="games-hero">
+      <p class="eyebrow"><b></b> The Olyra arcade</p>
+      <h1>Make a little<br><em>playtime.</em></h1>
+      <p class="lede">Twelve little worlds, one big solar system, and a road trip with friends. Free to play right in your browser.</p>
+      <div class="game-facts"><span>12 GAMES</span><span>NO DOWNLOADS</span><span>FREE TO PLAY</span></div>
+    </section>
+    <section class="game-library" id="game-library">
+      <div class="section-head"><div><p class="eyebrow">Pick a world</p><h2>Olyra Games</h2></div><label class="game-filter-label">Filter games <select id="game-filter" aria-label="Filter games by genre"><option value="all">All games</option><option>Arcade</option><option>Puzzle</option><option>Physics</option><option>Adventure</option><option>Rhythm</option><option>Strategy</option><option>Platformer</option><option>Logic</option><option>Multiplayer</option><option>Simulation</option></select></label></div>
+      <div class="game-grid" id="game-grid">
+        <article class="game-card car-card" data-genre="Multiplayer Arcade"><div class="game-art art-car" aria-hidden="true"><span>↗</span><b>✦</b><i></i></div><div class="game-card-info"><div class="game-tags"><span>Multiplayer</span><span>Arcade</span></div><h3>Olyra Drive</h3><p>Take a spin around a little open world. Invite a friend to drive alongside and chat in your private room.</p><small>WASD / arrow keys to drive</small><button class="game-play" data-game="drive">Drive together <span>↗</span></button></div></article>
+        <article class="game-card" data-genre="Arcade"><div class="game-art art-stars" aria-hidden="true"><span>✦</span><b>☄</b><i>✧</i></div><div class="game-card-info"><div class="game-tags"><span>Easy</span><span>Arcade</span></div><h3>Star Catcher</h3><p>Pilot a spaceship, collect stars, dodge meteors, and chase a high score.</p><small>Rising difficulty · ship colours · local best</small><button class="game-play" data-game="stars">Play Star Catcher <span>↗</span></button></div></article>
+        <article class="game-card" data-genre="Arcade"><div class="game-art art-neon" aria-hidden="true"><span>RUN</span><b>▰</b><i>▱</i></div><div class="game-card-info"><div class="game-tags"><span>Easy</span><span>Endless runner</span></div><h3>Neon Rush</h3><p>Run through a futuristic city, leap over obstacles, slide under barriers, and collect energy.</p><small>Your speed climbs the longer you survive</small><button class="game-play" data-game="runner">Play Neon Rush <span>↗</span></button></div></article>
+        <article class="game-card" data-genre="Puzzle"><div class="game-art art-blocks" aria-hidden="true"><span>▦</span><b>▧</b><i>▨</i></div><div class="game-card-info"><div class="game-tags"><span>Easy</span><span>Puzzle</span></div><h3>Block Logic</h3><p>Fit differently shaped blocks into a grid to clear rows and earn points.</p><small>Daily board · no time pressure</small><button class="game-play" data-game="blocks">Play Block Logic <span>↗</span></button></div></article>
+        <article class="game-card" data-genre="Physics"><div class="game-art art-orbit" aria-hidden="true"><span>◉</span><b>·</b><i>○</i></div><div class="game-card-info"><div class="game-tags"><span>Medium</span><span>Physics</span></div><h3>Orbital Chaos</h3><p>Launch planets into space and use gravity to swing them around stars without crashing.</p><small>Build your own tiny solar system</small><button class="game-play" data-game="orbit">Play Orbital Chaos <span>↗</span></button></div></article>
+        <article class="game-card" data-genre="Adventure"><div class="game-art art-maze" aria-hidden="true"><span>╱</span><b>╲</b><i>◇</i></div><div class="game-card-info"><div class="game-tags"><span>Easy</span><span>Adventure</span></div><h3>Maze Breaker</h3><p>Escape a freshly generated maze, collect the key, find treasure, and avoid roaming enemies.</p><small>A new maze every run</small><button class="game-play" data-game="maze">Play Maze Breaker <span>↗</span></button></div></article>
+        <article class="game-card" data-genre="Rhythm"><div class="game-art art-beat" aria-hidden="true"><span>♪</span><b>♫</b><i>♩</i></div><div class="game-card-info"><div class="game-tags"><span>Medium</span><span>Rhythm</span></div><h3>Beat Reactor</h3><p>Hit the keys in time as notes flow into the pulse zone.</p><small>Custom charts for royalty-free music · D F J K</small><button class="game-play" data-game="beat">Play Beat Reactor <span>↗</span></button></div></article>
+        <article class="game-card" data-genre="Strategy"><div class="game-art art-colony" aria-hidden="true"><span>⌂</span><b>⌘</b><i>✧</i></div><div class="game-card-info"><div class="game-tags"><span>Medium</span><span>Strategy</span></div><h3>Tiny Colony</h3><p>Gather resources, build habitats, and keep your astronauts happy as your colony grows.</p><small>Unlock new buildings as you expand</small><button class="game-play" data-game="colony">Play Tiny Colony <span>↗</span></button></div></article>
+        <article class="game-card" data-genre="Platformer"><div class="game-art art-pixel" aria-hidden="true"><span>▟</span><b>▙</b><i>●</i></div><div class="game-card-info"><div class="game-tags"><span>Medium</span><span>Platformer</span></div><h3>Pixelbound</h3><p>Leap between platforms, find secret rooms, collect coins, and outsmart simple enemies.</p><small>Explore a bite-sized platforming level</small><button class="game-play" data-game="pixel">Play Pixelbound <span>↗</span></button></div></article>
+        <article class="game-card" data-genre="Logic Puzzle"><div class="game-art art-signal" aria-hidden="true"><span>3</span><b>1</b><i>2</i></div><div class="game-card-info"><div class="game-tags"><span>Easy</span><span>Logic</span></div><h3>Signal Sweep</h3><p>Find hidden signals on a grid using numerical clues, inspired by Minesweeper.</p><small>Easy, normal, expert, and custom boards</small><button class="game-play" data-game="signal">Play Signal Sweep <span>↗</span></button></div></article>
+        <article class="game-card" data-genre="Arcade Multiplayer"><div class="game-art art-bots" aria-hidden="true"><span>●</span><b>◉</b><i>○</i></div><div class="game-card-info"><div class="game-tags"><span>Medium</span><span>Arcade</span></div><h3>Bumper Bots</h3><p>Knock rival robots off the arena. Challenge AI or share a keyboard for two-player fun.</p><small>Player one: WASD · player two: arrows</small><button class="game-play" data-game="bots">Play Bumper Bots <span>↗</span></button></div></article>
+        <article class="game-card space-card" data-genre="Simulation Physics"><div class="game-art art-space" aria-hidden="true"><span>☉</span><b>◌</b><i>·</i></div><div class="game-card-info"><div class="game-tags"><span>Simulation</span><span>Physics</span></div><h3>Space Solution</h3><p>Remake a solar system: add and remove worlds, tune gravity, launch objects, and inspect orbital stats.</p><small>Gravity is simulated by the Olyra backend</small><button class="game-play" data-game="space">Open Space Solution <span>↗</span></button></div></article>
+      </div>
+    </section>
+  </main>
+  <footer><a class="brand" href="/"><img src="/OlyraLogo.svg" alt=""> olyra</a><span>Good games, no gatekeeping.</span><span>© 2026 Olyra Foundation</span><a href="/tools/">Olyra tools ↗</a></footer>
+  <dialog class="game-dialog" id="game-dialog" aria-labelledby="game-title">
+    <div class="game-dialog-head"><div><p class="eyebrow">OLYRA GAMES</p><h2 id="game-title">Game</h2></div><button class="game-close" id="game-close" aria-label="Close game">×</button></div>
+    <p class="game-description" id="game-description"></p>
+    <div class="game-controls" id="game-controls"></div>
+    <div class="game-status" id="game-status" role="status"></div>
+    <canvas id="game-canvas" width="800" height="450" aria-label="Game area"></canvas>
+    <div class="game-dialog-footer"><span id="game-hint"></span><button class="game-secondary" id="game-restart">Restart game</button></div>
+  </dialog>
+  <script src="/games/games.js"></script>
+</body>
+</html>
