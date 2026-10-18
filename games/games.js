@@ -28,6 +28,7 @@
   };
   let currentGame = '';
   let gameState = null;
+  let botsOpponent = 'ai';
   let lastFrame = 0;
   let raf = 0;
 
@@ -440,7 +441,7 @@
     if (currentGame === 'pixel' && ['ArrowLeft', 'ArrowRight', 'a', 'A', 'd', 'D'].includes(event.key)) gameState.player.vx = 0;
     if (currentGame === 'runner' && ['ArrowDown', 's', 'S'].includes(event.key)) gameState.player.sliding = false;
     if (currentGame === 'bots') {
-      const dirs = { a: ['one', 'x', -1], d: ['one', 'x', 1], w: ['one', 'y', -1], s: ['one', 'y', 1], ArrowLeft: ['two', 'x', -1], ArrowRight: ['two', 'x', 1], ArrowUp: ['two', 'y', -1], ArrowDown: ['two', 'y', 1] };
+      const dirs = { a: ['one', 'x', -1], A: ['one', 'x', -1], d: ['one', 'x', 1], D: ['one', 'x', 1], w: ['one', 'y', -1], W: ['one', 'y', -1], s: ['one', 'y', 1], S: ['one', 'y', 1], ArrowLeft: ['two', 'x', -1], ArrowRight: ['two', 'x', 1], ArrowUp: ['two', 'y', -1], ArrowDown: ['two', 'y', 1] };
       const direction = dirs[event.key];
       if (direction && gameState) gameState[direction[0]][direction[1]] = 0;
     }
@@ -526,9 +527,9 @@
   }
 
   function initializeBots() {
-    const ai = gameState?.ai ?? true;
+    const ai = botsOpponent === 'ai';
     gameState = { one: { x: 240, y: 225, vx: 0, vy: 0, lives: 3, color: '#ff4f9a' }, two: { x: 560, y: 225, vx: 0, vy: 0, lives: 3, color: '#72d8ff' }, time: 0, over: false, ai };
-    if (!controls.querySelector('select')) addSelect('Opponent', [['ai', 'Play against AI'], ['local', 'Two players · same keyboard']], ai ? 'ai' : 'local', (value) => { gameState.ai = value === 'ai'; });
+    if (!controls.querySelector('select')) addSelect('Opponent', [['ai', 'Play against AI'], ['local', 'Two players · same keyboard']], ai ? 'ai' : 'local', (value) => { botsOpponent = value; gameState.ai = value === 'ai'; });
     setStatus('Three bump-outs each · Last bot in the arena wins');
   }
   function handleBotsKey(key) {
