@@ -763,6 +763,7 @@
     }
     if (currentGame === 'runner' && !s.over) {
       s.time += dt; s.score = Math.floor(s.time * 10); s.speed = 240 + s.time * 12; s.spawn += dt;
+      s.player.vy += 1200 * dt; // Gravity pulls the runner back down after jumping.
       s.player.y += s.player.vy * dt;
       if (s.player.y >= 355) { s.player.y = 355; s.player.vy = 0; s.player.jumping = false; }
       if (s.player.sliding) { s.player.slideTime -= dt; if (s.player.slideTime <= 0) s.player.sliding = false; }
