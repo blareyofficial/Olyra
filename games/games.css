@@ -59,3 +59,32 @@
 .colony-controls button:hover{border-color:var(--mint)}
 @media(max-width:900px){.game-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:600px){.games-page{padding:45px 20px 75px}.games-hero{padding:30px 0 58px}.game-grid{grid-template-columns:1fr}.game-library .section-head{align-items:flex-start;display:block}.game-filter-label{margin-top:18px}.game-dialog{padding:15px}.game-dialog-footer{align-items:flex-start;gap:10px}.game-chat{flex-wrap:wrap}.game-chat input:first-child{flex:1}.game-chat input:nth-child(2){flex-basis:100%}}
+
+
+/* Touch-first controls and small-screen game layout */
+.game-dialog { box-sizing: border-box; }
+.game-dialog canvas { touch-action: manipulation; }
+.mobile-game-controls { display: none; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 12px auto 4px; max-width: 520px; width: 100%; }
+.mobile-game-control { background: #17152a; border: 1px solid #51436f; border-radius: 10px; color: var(--ink); cursor: pointer; font: 600 12px 'DM Mono',monospace; min-height: 46px; min-width: 54px; padding: 10px 14px; touch-action: none; user-select: none; -webkit-user-select: none; }
+.mobile-game-control.is-pressed, .mobile-game-control:active { background: var(--coral); border-color: var(--coral); color: #080812; }
+.game-controls button, .game-controls select, .game-controls input, .game-play, .game-secondary, .game-close { min-height: 44px; }
+.game-controls select, .game-controls input { max-width: 100%; min-width: 0; }
+.game-status { overflow-wrap: anywhere; }
+@media (pointer: coarse), (max-width: 700px) {
+  .mobile-game-controls { display: flex; }
+  .game-dialog { max-height: 96dvh; max-width: calc(100vw - 12px); padding: 12px; }
+  .game-dialog canvas { max-height: 42dvh; }
+  .game-controls { align-items: stretch; }
+  .game-controls > button, .game-controls > select, .game-controls > input { flex: 1 1 auto; }
+  .colony-controls button { flex: 1 1 145px; min-height: 46px; }
+  .game-dialog-footer { flex-wrap: wrap; }
+  .game-dialog-footer > span { flex: 1 1 100%; line-height: 1.5; }
+}
+@media (max-width: 420px) {
+  .games-page { padding-left: 14px; padding-right: 14px; }
+  .game-dialog-head h2 { font-size: 28px; }
+  .game-description { font-size: 14px; }
+  .game-dialog canvas { max-height: 36dvh; }
+  .game-filter-label { align-items: stretch; flex-direction: column; }
+  .game-filter-label select { width: 100%; }
+}

@@ -112,6 +112,7 @@
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     dialog.showModal();
     initializeGame(name);
+    addMobileControls(name);
     lastFrame = performance.now();
     raf = requestAnimationFrame(loop);
     if (name === 'drive' && new URLSearchParams(location.search).has('room') && location.hash.length > 1) {
@@ -149,12 +150,53 @@
     if (currentGame === 'stars' && ['ArrowLeft', 'a', 'A'].includes(event.key)) gameState.player.x = Math.max(24, gameState.player.x - 24);
     if (currentGame === 'stars' && ['ArrowRight', 'd', 'D'].includes(event.key)) gameState.player.x = Math.min(776, gameState.player.x + 24);
     if (currentGame === 'orbit' && event.key.toLowerCase() === 'r') {
-      gameState.bodies = [{ x: 400, y: 220, vx: 0, vy: 0, mass: 2000, radius: 22, color: '#ffe48a' }, { x: 535, y: 220, vx: 0, vy: -40, mass: 28, radius: 9, color: '#72d8ff' }, { x: 260, y: 220, vx: 0, vy: 32, mass: 18, radius: 7, color: '#ff4f9a' }];
-      gameState.time = 0; gameState.over = false;
-      setStatus('Orbital system reset.');
+      resetOrbit();
     }
     if (currentGame === 'bots' && event.key.toLowerCase() === 'r') initializeBots();
   });
+
+  function addMobileControls(name) {
+    const layouts = {
+      drive: [['↑', 'ArrowUp'], ['←', 'ArrowLeft'], ['↓', 'ArrowDown'], ['→', 'ArrowRight']],
+      stars: [['←', 'ArrowLeft'], ['→', 'ArrowRight']],
+      runner: [['JUMP', 'ArrowUp'], ['SLIDE', 'ArrowDown']],
+      blocks: [['←', 'ArrowLeft'], ['ROTATE', 'ArrowUp'], ['→', 'ArrowRight'], ['DROP', 'ArrowDown']],
+      maze: [['↑', 'ArrowUp'], ['←', 'ArrowLeft'], ['↓', 'ArrowDown'], ['→', 'ArrowRight']],
+      beat: [['D', 'd'], ['F', 'f'], ['J', 'j'], ['K', 'k']],
+      pixel: [['←', 'ArrowLeft'], ['JUMP', 'ArrowUp'], ['→', 'ArrowRight']],
+      bots: [['P1 ↑', 'w'], ['P1 ←', 'a'], ['P1 ↓', 's'], ['P1 →', 'd'], ['P2 ↑', 'ArrowUp'], ['P2 ←', 'ArrowLeft'], ['P2 ↓', 'ArrowDown'], ['P2 →', 'ArrowRight']]
+    };
+    const layout = layouts[name];
+    if (!layout) return;
+    const pad = make('div', 'mobile-game-controls');
+    pad.setAttribute('aria-label', 'Touch game controls');
+    for (const [label, key] of layout) {
+      const button = make('button', 'mobile-game-control', label);
+      button.type = 'button';
+      button.setAttribute('aria-label', `Hold ${label} (${key})`);
+      const press = (event) => {
+        event.preventDefault();
+        if (button.dataset.pressed) return;
+        button.dataset.pressed = 'true';
+        button.classList.add('is-pressed');
+        document.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
+      };
+      const release = (event) => {
+        if (event) event.preventDefault();
+        if (!button.dataset.pressed) return;
+        delete button.dataset.pressed;
+        button.classList.remove('is-pressed');
+        document.dispatchEvent(new KeyboardEvent('keyup', { key, bubbles: true, cancelable: true }));
+      };
+      button.addEventListener('pointerdown', press);
+      button.addEventListener('pointerup', release);
+      button.addEventListener('pointercancel', release);
+      button.addEventListener('lostpointercapture', release);
+      button.addEventListener('contextmenu', (event) => event.preventDefault());
+      pad.append(button);
+    }
+    controls.append(pad);
+  }
 
   function initializeGame(name) {
     if (name === 'drive') initializeDrive();
@@ -250,9 +292,16 @@
   }
 
   function initializeOrbit() {
-    gameState = { bodies: [{ x: 400, y: 220, vx: 0, vy: 0, mass: 2000, radius: 22, color: '#ffe48a' }, { x: 535, y: 220, vx: 0, vy: -40, mass: 28, radius: 9, color: '#72d8ff' }, { x: 260, y: 220, vx: 0, vy: 32, mass: 18, radius: 7, color: '#ff4f9a' }], time: 0, gravity: 1700 };
-    addControl('Gravity +', () => { gameState.gravity = Math.min(4000, gameState.gravity + 250); });
-    addControl('Gravity −', () => { gameState.gravity = Math.max(250, gameState.gravity - 250); });
+    gameState = { bodies: [{ x: 400, y: 220, vx: 0, vy: 0, mass: 2000, radius: 22, color: '#ffe48a' }, { x: 535, y: 220, vx: 0, vy: -3.4, mass: 28, radius: 9, color: '#72d8ff' }, { x: 260, y: 220, vx: 0, vy: 2.9, mass: 18, radius: 7, color: '#ff4f9a' }], time: 0, gravity: 0.8, over: false };
+    addControl('Gravity +', () => { gameState.gravity = Math.min(3, Math.round((gameState.gravity + 0.1) * 10) / 10); });
+    addControl('Gravity −', () => { gameState.gravity = Math.max(0.1, Math.round((gameState.gravity - 0.1) * 10) / 10); });
+    addControl('Reset system', resetOrbit);
+  }
+  function resetOrbit() {
+    gameState.bodies = [{ x: 400, y: 220, vx: 0, vy: 0, mass: 2000, radius: 22, color: '#ffe48a' }, { x: 535, y: 220, vx: 0, vy: -3.4, mass: 28, radius: 9, color: '#72d8ff' }, { x: 260, y: 220, vx: 0, vy: 2.9, mass: 18, radius: 7, color: '#ff4f9a' }];
+    gameState.time = 0;
+    gameState.over = false;
+    setStatus('Orbital system reset.');
   }
   canvas.addEventListener('click', (event) => {
     if (currentGame !== 'orbit' || !dialog.open) return;
@@ -803,7 +852,7 @@
       for (let j = 0; j < bodies.length; j++) {
         if (i === j) continue;
         const b = bodies[j], dx = b.x - a.x, dy = b.y - a.y, d2 = dx * dx + dy * dy + 900;
-        const acceleration = s.gravity * b.mass / d2;
+        const acceleration = s.gravity * b.mass / (d2 * Math.sqrt(d2));
         a.vx += dx * acceleration * dt;
         a.vy += dy * acceleration * dt;
       }
@@ -931,7 +980,7 @@
   function drawOrbit() {
     const s = gameState;
     ctx.fillStyle = '#090914'; ctx.fillRect(0, 0, 800, 450);
-    ctx.fillStyle = '#aaa5c2'; ctx.font = '12px monospace'; ctx.fillText('CLICK TO ADD A PLANET', 18, 25); ctx.fillText(`GRAVITY ${s.gravity}`, 650, 25);
+    ctx.fillStyle = '#aaa5c2'; ctx.font = '12px monospace'; ctx.fillText('TAP / CLICK TO ADD A PLANET', 18, 25); ctx.fillText(`GRAVITY ${s.gravity.toFixed(1)}×`, 650, 25);
     for (const body of s.bodies) { ctx.beginPath(); ctx.strokeStyle = `${body.color}55`; ctx.arc(body.x, body.y, Math.max(28, Math.hypot(body.vx, body.vy) * 2), 0, Math.PI * 2); ctx.stroke(); ctx.fillStyle = body.color; ctx.beginPath(); ctx.arc(body.x, body.y, body.radius, 0, Math.PI * 2); ctx.fill(); }
   }
   function drawMaze() {
