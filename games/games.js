@@ -291,22 +291,92 @@
     nextBlock();
   }
 
+  let selectedOrbitBody = null;
+  let lastOrbitSpawn = { x: 235, y: 115 };
+  const orbitBody = (x, y, vx, vy, mass, radius, color, kind = 'planet') => ({ x, y, vx, vy, mass, radius, color, kind });
+  function starterOrbitBodies() {
+    return [
+      orbitBody(400, 220, 0, 0, 2000, 22, '#ffe48a', 'star'),
+      orbitBody(535, 220, 0, -15.4, 28, 9, '#72d8ff', 'planet'),
+      orbitBody(260, 220, 0, 15.1, 18, 7, '#ff4f9a', 'planet')
+    ];
+  }
   function initializeOrbit() {
-    gameState = { bodies: [{ x: 400, y: 220, vx: 0, vy: 0, mass: 2000, radius: 22, color: '#ffe48a' }, { x: 535, y: 220, vx: 0, vy: -3.4, mass: 28, radius: 9, color: '#72d8ff' }, { x: 260, y: 220, vx: 0, vy: 2.9, mass: 18, radius: 7, color: '#ff4f9a' }], time: 0, gravity: 0.8, over: false };
+    gameState = { bodies: starterOrbitBodies(), time: 0, gravity: 0.8, over: false };
+    selectedOrbitBody = gameState.bodies[1];
     addControl('Gravity +', () => { gameState.gravity = Math.min(3, Math.round((gameState.gravity + 0.1) * 10) / 10); });
     addControl('Gravity −', () => { gameState.gravity = Math.max(0.1, Math.round((gameState.gravity - 0.1) * 10) / 10); });
+    addControl('Add moon', addOrbitMoon);
+    addControl('Binary pair', addOrbitBinary);
+    addControl('Remove selected', removeSelectedOrbitBody);
     addControl('Reset system', resetOrbit);
+    setStatus('Select a body, add a moon, or create a binary pair.');
   }
   function resetOrbit() {
-    gameState.bodies = [{ x: 400, y: 220, vx: 0, vy: 0, mass: 2000, radius: 22, color: '#ffe48a' }, { x: 535, y: 220, vx: 0, vy: -3.4, mass: 28, radius: 9, color: '#72d8ff' }, { x: 260, y: 220, vx: 0, vy: 2.9, mass: 18, radius: 7, color: '#ff4f9a' }];
+    gameState.bodies = starterOrbitBodies();
+    selectedOrbitBody = gameState.bodies[1];
     gameState.time = 0;
     gameState.over = false;
     setStatus('Orbital system reset.');
   }
+  function addOrbitMoon() {
+    const s = gameState;
+    if (s.bodies.length >= 16) { setStatus('Body limit reached (16).'); return; }
+    let parent = selectedOrbitBody && s.bodies.includes(selectedOrbitBody) && selectedOrbitBody.kind !== 'star' ? selectedOrbitBody : null;
+    if (!parent) parent = s.bodies.filter((body) => body.kind !== 'star').sort((a, b) => Math.hypot(a.x - lastOrbitSpawn.x, a.y - lastOrbitSpawn.y) - Math.hypot(b.x - lastOrbitSpawn.x, b.y - lastOrbitSpawn.y))[0];
+    if (!parent) { setStatus('Add or select a planet first.'); return; }
+    const angle = Math.random() * Math.PI * 2;
+    const distance = parent.radius + 25;
+    const forceScale = 20 * s.gravity;
+    const speed = Math.sqrt(Math.max(0.1, forceScale * parent.mass / distance));
+    const x = parent.x + Math.cos(angle) * distance;
+    const y = parent.y + Math.sin(angle) * distance;
+    const sign = Math.random() < 0.5 ? -1 : 1;
+    const moon = orbitBody(x, y, parent.vx - Math.sin(angle) * speed * sign, parent.vy + Math.cos(angle) * speed * sign, Math.max(2, parent.mass * 0.08), Math.max(3, Math.min(6, parent.radius * 0.45)), '#b184ff', 'moon');
+    s.bodies.push(moon);
+    selectedOrbitBody = moon;
+    setStatus('Moon added. Its gravity interacts with every other body.');
+  }
+  function addOrbitBinary() {
+    const s = gameState;
+    if (s.bodies.length > 14) { setStatus('Need room for two more bodies (limit 16).'); return; }
+    const x = Math.max(75, Math.min(725, lastOrbitSpawn.x));
+    const y = Math.max(75, Math.min(375, lastOrbitSpawn.y));
+    const angle = Math.random() * Math.PI * 2;
+    const separation = 34, mass = 180, speed = Math.sqrt((20 * s.gravity) * mass / (2 * separation));
+    const dx = Math.cos(angle) * separation / 2, dy = Math.sin(angle) * separation / 2;
+    const vx = -Math.sin(angle) * speed, vy = Math.cos(angle) * speed;
+    const first = orbitBody(x - dx, y - dy, -vx, -vy, mass, 11, '#72d8ff', 'binary');
+    const second = orbitBody(x + dx, y + dy, vx, vy, mass, 11, '#ff4f9a', 'binary');
+    s.bodies.push(first, second);
+    selectedOrbitBody = first;
+    setStatus('Binary pair added with equal masses and opposite velocities. Both bodies exert gravity.');
+  }
+  function removeSelectedOrbitBody() {
+    const s = gameState;
+    if (!selectedOrbitBody || !s.bodies.includes(selectedOrbitBody)) { setStatus('Tap a body to select it first.'); return; }
+    if (selectedOrbitBody.kind === 'star' && s.bodies.length <= 1) { setStatus('Keep at least one body in the system.'); return; }
+    s.bodies = s.bodies.filter((body) => body !== selectedOrbitBody);
+    selectedOrbitBody = s.bodies[0] || null;
+    setStatus('Selected body removed.');
+  }
   canvas.addEventListener('click', (event) => {
     if (currentGame !== 'orbit' || !dialog.open) return;
     const rect = canvas.getBoundingClientRect();
-    if (gameState.bodies.length < 16) gameState.bodies.push({ x: (event.clientX - rect.left) * canvas.width / rect.width, y: (event.clientY - rect.top) * canvas.height / rect.height, vx: random(-35, 35), vy: random(-35, 35), mass: 10, radius: 7, color: randomColor() });
+    const x = (event.clientX - rect.left) * canvas.width / rect.width;
+    const y = (event.clientY - rect.top) * canvas.height / rect.height;
+    lastOrbitSpawn = { x, y };
+    const hit = [...gameState.bodies].reverse().find((body) => Math.hypot(body.x - x, body.y - y) <= Math.max(14, body.radius + 5));
+    if (hit) {
+      selectedOrbitBody = hit;
+      setStatus(`Selected ${hit.kind} · mass ${hit.mass}`);
+      return;
+    }
+    if (gameState.bodies.length >= 16) { setStatus('Body limit reached (16).'); return; }
+    const body = orbitBody(x, y, random(-8, 8), random(-8, 8), 18, 7, randomColor(), 'planet');
+    gameState.bodies.push(body);
+    selectedOrbitBody = body;
+    setStatus('Planet launched. Tap a body to select it; use Add moon or Binary pair.');
   });
 
   function initializeMaze() {
@@ -846,28 +916,38 @@
   }
   function updateOrbit(dt) {
     const s = gameState, bodies = s.bodies;
+    if (!bodies.length) return;
     s.time += dt;
+    // Scale the toy system's gravitational constant so mutual tugs are visible at screen-sized distances.
+    // Compute every acceleration from the same positions before moving any body (pairwise N-body gravity).
+    const accelerations = bodies.map(() => ({ x: 0, y: 0 }));
+    const forceScale = 20 * s.gravity;
     for (let i = 0; i < bodies.length; i++) {
-      const a = bodies[i];
-      for (let j = 0; j < bodies.length; j++) {
-        if (i === j) continue;
-        const b = bodies[j], dx = b.x - a.x, dy = b.y - a.y, d2 = dx * dx + dy * dy + 900;
-        const acceleration = s.gravity * b.mass / (d2 * Math.sqrt(d2));
-        a.vx += dx * acceleration * dt;
-        a.vy += dy * acceleration * dt;
+      for (let j = i + 1; j < bodies.length; j++) {
+        const a = bodies[i], b = bodies[j];
+        const dx = b.x - a.x, dy = b.y - a.y;
+        const distanceSquared = dx * dx + dy * dy + 36;
+        const inverseDistanceCubed = 1 / (distanceSquared * Math.sqrt(distanceSquared));
+        accelerations[i].x += dx * forceScale * b.mass * inverseDistanceCubed;
+        accelerations[i].y += dy * forceScale * b.mass * inverseDistanceCubed;
+        accelerations[j].x -= dx * forceScale * a.mass * inverseDistanceCubed;
+        accelerations[j].y -= dy * forceScale * a.mass * inverseDistanceCubed;
       }
     }
-    for (const body of bodies) {
-      body.x += body.vx * dt; body.y += body.vy * dt;
-      if (body.x < body.radius || body.x > 800 - body.radius) body.vx *= -0.8;
-      if (body.y < body.radius || body.y > 450 - body.radius) body.vy *= -0.8;
-      body.x = Math.max(body.radius, Math.min(800 - body.radius, body.x));
-      body.y = Math.max(body.radius, Math.min(450 - body.radius, body.y));
+    // Semi-implicit Euler keeps the fast, close moon/binary orbits much more stable.
+    for (let i = 0; i < bodies.length; i++) {
+      const body = bodies[i], acceleration = accelerations[i];
+      body.vx += acceleration.x * dt;
+      body.vy += acceleration.y * dt;
+      body.x += body.vx * dt;
+      body.y += body.vy * dt;
+      if (body.x < body.radius || body.x > 800 - body.radius) { body.vx *= -0.8; body.x = Math.max(body.radius, Math.min(800 - body.radius, body.x)); }
+      if (body.y < body.radius || body.y > 450 - body.radius) { body.vy *= -0.8; body.y = Math.max(body.radius, Math.min(450 - body.radius, body.y)); }
     }
     for (let i = 0; i < bodies.length; i++) for (let j = i + 1; j < bodies.length; j++) {
       if (Math.hypot(bodies[i].x - bodies[j].x, bodies[i].y - bodies[j].y) <= bodies[i].radius + bodies[j].radius) {
         s.over = true;
-        setStatus('Planet collision! Reset the system to try a new orbit.');
+        setStatus('Collision detected! Reset the system to try another arrangement.');
       }
     }
   }
@@ -980,8 +1060,15 @@
   function drawOrbit() {
     const s = gameState;
     ctx.fillStyle = '#090914'; ctx.fillRect(0, 0, 800, 450);
-    ctx.fillStyle = '#aaa5c2'; ctx.font = '12px monospace'; ctx.fillText('TAP / CLICK TO ADD A PLANET', 18, 25); ctx.fillText(`GRAVITY ${s.gravity.toFixed(1)}×`, 650, 25);
-    for (const body of s.bodies) { ctx.beginPath(); ctx.strokeStyle = `${body.color}55`; ctx.arc(body.x, body.y, Math.max(28, Math.hypot(body.vx, body.vy) * 2), 0, Math.PI * 2); ctx.stroke(); ctx.fillStyle = body.color; ctx.beginPath(); ctx.arc(body.x, body.y, body.radius, 0, Math.PI * 2); ctx.fill(); }
+    ctx.fillStyle = '#aaa5c2'; ctx.font = '12px monospace';
+    ctx.fillText('TAP BODY TO SELECT · TAP EMPTY SPACE TO ADD PLANET', 18, 25);
+    ctx.fillText(`G ${s.gravity.toFixed(1)}× · ${s.bodies.length}/16 BODIES`, 610, 25);
+    for (const body of s.bodies) {
+      ctx.beginPath(); ctx.strokeStyle = `${body.color}45`; ctx.arc(body.x, body.y, Math.max(24, Math.hypot(body.vx, body.vy) * 1.5), 0, Math.PI * 2); ctx.stroke();
+      if (body === selectedOrbitBody) { ctx.beginPath(); ctx.strokeStyle = '#f7f2ff'; ctx.lineWidth = 2; ctx.arc(body.x, body.y, body.radius + 5, 0, Math.PI * 2); ctx.stroke(); ctx.lineWidth = 1; }
+      ctx.fillStyle = body.color; ctx.beginPath(); ctx.arc(body.x, body.y, body.radius, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#f7f2ff'; ctx.font = '10px monospace'; ctx.fillText(body.kind.toUpperCase(), body.x + body.radius + 4, body.y - body.radius - 2);
+    }
   }
   function drawMaze() {
     const s = gameState, cell = 40, ox = 140, oy = 42;
