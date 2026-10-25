@@ -296,7 +296,7 @@
   const orbitBody = (x, y, vx, vy, mass, radius, color, kind = 'planet') => ({ x, y, vx, vy, mass, radius, color, kind });
   function starterOrbitBodies() {
     return [
-      orbitBody(400, 220, 0, 0, 2000, 22, '#ffe48a', 'star'),
+      orbitBody(400, 220, 0, 0, 250, 22, '#ffe48a', 'star'),
       orbitBody(535, 220, 0, -15.4, 28, 9, '#72d8ff', 'planet'),
       orbitBody(260, 220, 0, 15.1, 18, 7, '#ff4f9a', 'planet')
     ];
@@ -327,7 +327,7 @@
     if (!parent) { setStatus('Add or select a planet first.'); return; }
     const angle = Math.random() * Math.PI * 2;
     const distance = parent.radius + 25;
-    const forceScale = 20 * s.gravity;
+    const forceScale = 300 * s.gravity;
     const speed = Math.sqrt(Math.max(0.1, forceScale * parent.mass / distance));
     const x = parent.x + Math.cos(angle) * distance;
     const y = parent.y + Math.sin(angle) * distance;
@@ -343,7 +343,7 @@
     const x = Math.max(75, Math.min(725, lastOrbitSpawn.x));
     const y = Math.max(75, Math.min(375, lastOrbitSpawn.y));
     const angle = Math.random() * Math.PI * 2;
-    const separation = 34, mass = 180, speed = Math.sqrt((20 * s.gravity) * mass / (2 * separation));
+    const separation = 34, mass = 180, speed = Math.sqrt((300 * s.gravity) * mass / (2 * separation));
     const dx = Math.cos(angle) * separation / 2, dy = Math.sin(angle) * separation / 2;
     const vx = -Math.sin(angle) * speed, vy = Math.cos(angle) * speed;
     const first = orbitBody(x - dx, y - dy, -vx, -vy, mass, 11, '#72d8ff', 'binary');
@@ -921,7 +921,7 @@
     // Scale the toy system's gravitational constant so mutual tugs are visible at screen-sized distances.
     // Compute every acceleration from the same positions before moving any body (pairwise N-body gravity).
     const accelerations = bodies.map(() => ({ x: 0, y: 0 }));
-    const forceScale = 20 * s.gravity;
+    const forceScale = 300 * s.gravity;
     for (let i = 0; i < bodies.length; i++) {
       for (let j = i + 1; j < bodies.length; j++) {
         const a = bodies[i], b = bodies[j];
